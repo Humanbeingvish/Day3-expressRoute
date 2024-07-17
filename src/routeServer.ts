@@ -1,18 +1,34 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 
 const app = express();
-const port= process.env.PORT ||3000;
+const port = process.env.PORT || 3000;
 
-app.get('/About',(req,res)=>{
-    res.send("This is about page ");
+// Custom middleware with explicit types
+const requestLogger = (req: Request, res: Response, next: NextFunction) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+};
 
-})
+// Apply middleware
+app.use(requestLogger);
 
-app.get('/contact',(req,res)=>{
-res.send('This is contact Page')
+// Define routes
+app.get('/about', (req: Request, res: Response) => {
+    res.send("This is the About page.");
 });
 
-app.listen(port,()=>{
-    console.log('Server Started');
-    
+app.get('/contact', (req: Request, res: Response) => {
+    res.send("This is the Contact page.");
 });
+
+// Error handling middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server started on http://localhost:${port}`);
+});
+
